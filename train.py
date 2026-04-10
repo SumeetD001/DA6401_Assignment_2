@@ -31,7 +31,7 @@ opt = optim.Adam(
 cls_loss = nn.CrossEntropyLoss()
 mse_loss = nn.MSELoss()
 iou_loss = IoULoss()
-seg_loss = nn.BCEWithLogitsLoss()
+seg_loss = nn.CrossEntropyLoss()
 
 for epoch in range(25):
     total = 0
@@ -53,7 +53,7 @@ for epoch in range(25):
 
         loss = (
             cls_loss(cls,label) +
-            0.01 * mse_loss(box,bbox) +
+            0.01 * mse_loss(box,bbox) + 
             iou_loss(box,bbox) +
             seg_loss(seg,mask)
         )
