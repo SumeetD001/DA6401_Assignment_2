@@ -13,9 +13,9 @@ class MultiTaskPerceptionModel(nn.Module):
     def __init__(self):
         super().__init__()
 
-        classifier_path = "classifier.pth"
-        localizer_path = "localizer.pth"
-        unet_path = "unet.pth"
+        classifier_path = "/autograder/source/classifier.pth"
+        localizer_path = "/autograder/source/localizer.pth"
+        unet_path = "/autograder/source/unet.pth"
 
         gdown.download(id="1jLOuo5nCN6GEILJHzQhtOodT7uTrzXCo", output=classifier_path, quiet=False)
         gdown.download(id="1xf97BH1Tv2wVw0svkL413tjsVy4KnTWm", output=localizer_path, quiet=False)
