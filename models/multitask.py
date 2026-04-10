@@ -21,7 +21,7 @@ class MultiTaskPerceptionModel(nn.Module):
         gdown.download(id="1EpVxYiVWljC6mNFtEqLfvhTllBOJRqLA", output=localizer_path, quiet=False)
         gdown.download(id="1j2ugYbi0uRMPDdX6ffn5KbxAHl3i8Fzo", output=unet_path, quiet=False)
 
-        self.backbone = VGG11()
+        self.backbone = VGG11Encoder()
 
         self.classifier = Classifier()
         self.localizer = Localizer()
