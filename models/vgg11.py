@@ -1,6 +1,6 @@
 import torch.nn as nn
 
-class VGG11(nn.Module):
+class VGG11Encoder(nn.Module):
     def __init__(self):
         super().__init__()
 
