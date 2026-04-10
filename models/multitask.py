@@ -45,4 +45,8 @@ class MultiTaskPerceptionModel(nn.Module):
         seg = self.segmenter(feat)
         seg = F.interpolate(seg, size=(224,224))
 
-        return cls, box, seg
+        return {
+            "classification": cls,
+            "localization": box,
+            "segmentation": seg
+        }
