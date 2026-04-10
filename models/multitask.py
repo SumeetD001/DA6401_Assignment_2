@@ -27,9 +27,14 @@ class MultiTaskPerceptionModel(nn.Module):
         self.localizer = Localizer()
         self.segmenter = UNetHead()
 
-        self.classifier.load_state_dict(torch.load(classifier_path)["state_dict"])
-        self.localizer.load_state_dict(torch.load(localizer_path)["state_dict"])
-        self.segmenter.load_state_dict(torch.load(unet_path)["state_dict"])
+        classifier_ckpt = torch.load(classifier_path, map_location=torch.device("cpu"))
+        self.classifier.load_state_dict(classifier_ckpt["state_dict"])
+
+        localizer_ckpt = torch.load(localizer_path, map_location=torch.device("cpu"))
+        self.localizer.load_state_dict(localizer_ckpt["state_dict"])
+        
+        segmenter_ckpt = torch.load(unet_path, map_location=torch.device("cpu"))
+        self.segmenter.load_state_dict(segmenter_ckpt["state_dict"])
 
     def forward(self,x):
         feat = self.backbone(x)
