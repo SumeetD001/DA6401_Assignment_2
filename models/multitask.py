@@ -21,9 +21,9 @@ class MultiTaskPerceptionModel(nn.Module):
         localizer_path = ""
         unet_path = ""
 
-        gdown.download(id="https://drive.google.com/file/d/1hZd_Xd7SLK8k8uWuqaiGI0OPII70jeQ0/view?usp=sharing", output=classifier_path, quiet=False)
-        gdown.download(id="https://drive.google.com/file/d/1EpVxYiVWljC6mNFtEqLfvhTllBOJRqLA/view?usp=sharing", output=localizer_path, quiet=False)
-        gdown.download(id="https://drive.google.com/file/d/1j2ugYbi0uRMPDdX6ffn5KbxAHl3i8Fzo/view?usp=sharing", output=unet_path, quiet=False)
+        gdown.download(id="1hZd_Xd7SLK8k8uWuqaiGI0OPII70jeQ0", output=classifier_path, quiet=False)
+        gdown.download(id="1EpVxYiVWljC6mNFtEqLfvhTllBOJRqLA", output=localizer_path, quiet=False)
+        gdown.download(id="1j2ugYbi0uRMPDdX6ffn5KbxAHl3i8Fzo", output=unet_path, quiet=False)
 
         self.backbone = VGG11()
 
