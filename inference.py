@@ -6,7 +6,6 @@ from models.multitask import MultiTaskPerceptionModel
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# same normalization as training (VERY IMPORTANT)
 transform = transforms.Compose([
     transforms.Resize((224,224)),
     transforms.ToTensor(),
