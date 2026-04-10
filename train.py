@@ -53,7 +53,7 @@ for epoch in range(25):
 
         loss = (
             cls_loss(cls,label) +
-            0.01 * mse_loss(box,bbox) +   # 🔥 VERY IMPORTANT
+            0.01 * mse_loss(box,bbox) +
             iou_loss(box,bbox) +
             seg_loss(seg,mask)
         )
