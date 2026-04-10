@@ -13,13 +13,9 @@ class MultiTaskPerceptionModel(nn.Module):
     def __init__(self):
         super().__init__()
 
-        # classifier_path = "checkpoints/classifier.pth"
-        # localizer_path = "checkpoints/localizer.pth"
-        # unet_path = "checkpoints/unet.pth"
-
-        classifier_path = ""
-        localizer_path = ""
-        unet_path = ""
+        classifier_path = "checkpoints/classifier.pth"
+        localizer_path = "checkpoints/localizer.pth"
+        unet_path = "checkpoints/unet.pth"
 
         gdown.download(id="1hZd_Xd7SLK8k8uWuqaiGI0OPII70jeQ0", output=classifier_path, quiet=False)
         gdown.download(id="1EpVxYiVWljC6mNFtEqLfvhTllBOJRqLA", output=localizer_path, quiet=False)
