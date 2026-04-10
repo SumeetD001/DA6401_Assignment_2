@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from models.vgg11 import VGG11
+from models.vgg11 import VGG11Encoder
 from models.classification import Classifier
 from models.localization import Localizer
 from models.segmentation import UNetHead
