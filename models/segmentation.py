@@ -10,7 +10,7 @@ class UNetHead(nn.Module):
             nn.ReLU(),
             nn.ConvTranspose2d(128,64,2,2),
             nn.ReLU(),
-            nn.ConvTranspose2d(64,1,2,2)
+            nn.ConvTranspose2d(64,3,2,2)
         )
 
     def forward(self,x):
