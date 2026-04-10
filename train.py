@@ -4,7 +4,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 from data.pets_dataset import PetDataset
-from models.vgg11 import VGG11
+from models.vgg11 import VGG11Encoder
 from models.classification import Classifier
 from models.localization import Localizer
 from models.segmentation import UNetHead
