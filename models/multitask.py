@@ -47,6 +47,6 @@ class MultiTaskPerceptionModel(nn.Module):
 
         return {
             "classification": cls,
-            "localization": box,
+            "localization": box*224,
             "segmentation": seg
         }
