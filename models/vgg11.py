@@ -36,7 +36,7 @@ def _conv_bn_relu(in_ch: int, out_ch: int) -> nn.Sequential:
     )
 
 
-class VGG11(nn.Module):
+class VGG11Encoder(nn.Module):
     """
     VGG-11 with BatchNorm and CustomDropout.
 
