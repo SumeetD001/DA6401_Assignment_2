@@ -93,7 +93,7 @@ class MultiTaskPerceptionModel(nn.Module):
             nn.Dropout(p=0.3),
 
             nn.Linear(256, 4),
-            nn.ReLU(inplace=True),
+            # nn.ReLU(inplace=True),
         )
 
         # ── Segmentation decoder ────────────────────────────────────────
