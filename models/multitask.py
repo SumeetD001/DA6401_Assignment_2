@@ -20,7 +20,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from models.vgg11 import VGG11
+from models.vgg11 import VGG11Encoder
 from models.layers import CustomDropout
 from models.localization import LocalizationModel
 from models.segmentation import SegmentationModel, _double_conv, _UpBlock
@@ -61,7 +61,7 @@ class MultiTaskPerceptionModel(nn.Module):
         self.device = torch.device(device)
 
         # ── Shared backbone (VGG11 feature extractor) ──────────────────
-        _base = VGG11(num_classes=num_classes)
+        _base = VGG11Encoder(num_classes=num_classes)
         self.backbone = _base.features
         self.avgpool  = _base.avgpool
 
