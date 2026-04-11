@@ -203,12 +203,12 @@ class MultiTaskPerceptionModel(nn.Module):
         bbox = self.reg_head(flat)
         x1, y1, x2, y2 = bbox[:, 0], bbox[:, 1], bbox[:, 2], bbox[:, 3]
         
-        cx = (x1 + x2) / 2
-        cy = (y1 + y2) / 2
-        w  = (x2 - x1)
-        h  = (y2 - y1)
+        # cx = (x1 + x2) / 2
+        # cy = (y1 + y2) / 2
+        # w  = (x2 - x1)
+        # h  = (y2 - y1)
         
-        bbox = torch.stack([cx, cy, w, h], dim=1)
+        # bbox = torch.stack([cx, cy, w, h], dim=1)
 
         # # optional but recommended
         # bbox[:, 0] = bbox[:, 0].clamp(0, 224)
