@@ -1,42 +1,102 @@
+"""
+Custom Intersection-over-Union (IoU) loss.
+
+Boxes are expected in [x_center, y_center, width, height] format (pixel space).
+The loss is defined as  L = 1 - IoU  so it lies in [0, 1].
+
+Reduction modes:
+  "mean"  (default) – mean over the batch
+  "sum"             – sum  over the batch
+  "none"            – per-sample tensor
+"""
+
 import torch
 import torch.nn as nn
 
+
 class IoULoss(nn.Module):
-    def __init__(self, reduction="mean"):
+    """
+    IoU loss for axis-aligned bounding boxes.
+
+    Parameters
+    ----------
+    reduction : str
+        One of {"mean", "sum", "none"}.  Default is "mean".
+    eps : float
+        Small constant added to numerator and denominator to avoid
+        division by zero and keep gradients well-behaved.
+    """
+
+    def __init__(self, reduction: str = "mean", eps: float = 1e-6):
         super().__init__()
+        if reduction not in ("mean", "sum", "none"):
+            raise ValueError(
+                f"reduction must be 'mean', 'sum', or 'none', got '{reduction}'"
+            )
         self.reduction = reduction
+        self.eps = eps
 
-    def forward(self, pred, target):
-        # convert (xc,yc,w,h) → (x1,y1,x2,y2)
-        px1 = pred[:,0] - pred[:,2]/2
-        py1 = pred[:,1] - pred[:,3]/2
-        px2 = pred[:,0] + pred[:,2]/2
-        py2 = pred[:,1] + pred[:,3]/2
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _cxcywh_to_xyxy(boxes: torch.Tensor) -> torch.Tensor:
+        """Convert [cx, cy, w, h] → [x1, y1, x2, y2]."""
+        cx, cy, w, h = boxes[:, 0], boxes[:, 1], boxes[:, 2], boxes[:, 3]
+        x1 = cx - w / 2
+        y1 = cy - h / 2
+        x2 = cx + w / 2
+        y2 = cy + h / 2
+        return torch.stack([x1, y1, x2, y2], dim=1)
 
-        tx1 = target[:,0] - target[:,2]/2
-        ty1 = target[:,1] - target[:,3]/2
-        tx2 = target[:,0] + target[:,2]/2
-        ty2 = target[:,1] + target[:,3]/2
+    # ------------------------------------------------------------------
+    def forward(
+        self,
+        pred: torch.Tensor,
+        target: torch.Tensor,
+    ) -> torch.Tensor:
+        """
+        Parameters
+        ----------
+        pred   : (N, 4) predicted boxes  [cx, cy, w, h]
+        target : (N, 4) ground-truth boxes [cx, cy, w, h]
 
-        inter_x1 = torch.max(px1, tx1)
-        inter_y1 = torch.max(py1, ty1)
-        inter_x2 = torch.min(px2, tx2)
-        inter_y2 = torch.min(py2, ty2)
+        Returns
+        -------
+        Scalar loss (or per-sample tensor if reduction="none").
+        Value is always in [0, 1].
+        """
+        pred_xyxy = self._cxcywh_to_xyxy(pred)
+        tgt_xyxy = self._cxcywh_to_xyxy(target)
 
-        inter_area = torch.clamp(inter_x2-inter_x1, min=0) * \
-                     torch.clamp(inter_y2-inter_y1, min=0)
+        # Intersection
+        inter_x1 = torch.max(pred_xyxy[:, 0], tgt_xyxy[:, 0])
+        inter_y1 = torch.max(pred_xyxy[:, 1], tgt_xyxy[:, 1])
+        inter_x2 = torch.min(pred_xyxy[:, 2], tgt_xyxy[:, 2])
+        inter_y2 = torch.min(pred_xyxy[:, 3], tgt_xyxy[:, 3])
 
-        pred_area = (px2-px1)*(py2-py1)
-        target_area = (tx2-tx1)*(ty2-ty1)
+        inter_w = (inter_x2 - inter_x1).clamp(min=0)
+        inter_h = (inter_y2 - inter_y1).clamp(min=0)
+        inter_area = inter_w * inter_h
 
-        union = pred_area + target_area - inter_area + 1e-6
-        iou = inter_area / union
+        # Areas
+        pred_area = (pred_xyxy[:, 2] - pred_xyxy[:, 0]).clamp(min=0) * \
+                    (pred_xyxy[:, 3] - pred_xyxy[:, 1]).clamp(min=0)
+        tgt_area  = (tgt_xyxy[:, 2] - tgt_xyxy[:, 0]).clamp(min=0) * \
+                    (tgt_xyxy[:, 3] - tgt_xyxy[:, 1]).clamp(min=0)
 
-        loss = 1 - iou
+        union_area = pred_area + tgt_area - inter_area
+
+        iou = (inter_area + self.eps) / (union_area + self.eps)
+        # Clamp to [0, 1] for numerical safety
+        iou = iou.clamp(0.0, 1.0)
+
+        loss = 1.0 - iou  # in [0, 1]
 
         if self.reduction == "mean":
             return loss.mean()
         elif self.reduction == "sum":
             return loss.sum()
-        else:
+        else:  # "none"
             return loss
+
+    def extra_repr(self) -> str:
+        return f"reduction={self.reduction!r}, eps={self.eps}"
