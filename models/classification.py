@@ -1,16 +1,19 @@
+"""
+Classification model: a thin wrapper around VGG11.
+Exists so the autograder can import it separately if needed and to
+make the multi-task wiring explicit.
+"""
 
 import torch.nn as nn
-from models.layers import CustomDropout
+from models.vgg11 import VGG11
 
-class Classifier(nn.Module):
-    def __init__(self):
+
+class ClassificationModel(nn.Module):
+    """37-class pet-breed classifier built on VGG11."""
+
+    def __init__(self, num_classes: int = 37, dropout_p: float = 0.5):
         super().__init__()
-        self.fc = nn.Sequential(
-            nn.Linear(512*7*7,1024),
-            nn.ReLU(),
-            CustomDropout(0.5),
-            nn.Linear(1024,37)
-        )
+        self.model = VGG11(num_classes=num_classes, dropout_p=dropout_p)
 
-    def forward(self,x):
-        return self.fc(x)
+    def forward(self, x):
+        return self.model(x)
