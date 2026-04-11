@@ -44,9 +44,9 @@ class MultiTaskPerceptionModel(nn.Module):
 
     def __init__(
         self,
-        classifier_path: str = "checkpoints/classifier.pth",
-        localizer_path: str  = "checkpoints/localizer.pth",
-        unet_path: str       = "checkpoints/unet.pth",
+        classifier_path: str = "classifier.pth",
+        localizer_path: str  = "localizer.pth",
+        unet_path: str       = "unet.pth",
         num_classes: int     = 37,
         seg_classes: int     = 3,
         device: str          = "cpu",
@@ -54,9 +54,9 @@ class MultiTaskPerceptionModel(nn.Module):
         super().__init__()
 
         import gdown
-        gdown.download(id="<classifier.pth drive id>", output=classifier_path, quiet=False)
-        gdown.download(id="<localizer.pth drive id>",  output=localizer_path,  quiet=False)
-        gdown.download(id="<unet.pth drive id>",       output=unet_path,       quiet=False)
+        gdown.download(id="1E_7yKvLmdlHbxzDnEHhkIY9GU8Ioe4O3", output=classifier_path, quiet=False)
+        gdown.download(id="1xedj5h4rAfluEdkeCAgqhIwG0HNhHc5S",  output=localizer_path,  quiet=False)
+        gdown.download(id="1xedj5h4rAfluEdkeCAgqhIwG0HNhHc5S",       output=unet_path,       quiet=False)
 
         self.device = torch.device(device)
 
