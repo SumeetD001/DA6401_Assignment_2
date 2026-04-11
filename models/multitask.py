@@ -210,20 +210,25 @@ class MultiTaskPerceptionModel(nn.Module):
         d2 = self.up2(d3, s2)
         d1 = self.up1(d2, s1)
         seg_mask = self.seg_final(d1)
-        self.segmenter.load_state_dict(segmenter_ckpt["state_dict"])
-        return cls_logits, bbox, seg_mask
-
-    def forward(self,x):
-        feat = self.backbone(x)
-        flat = torch.flatten(feat,1)
-
-        cls = self.classifier(flat)
-        box = self.localizer(flat)
-        seg = self.segmenter(feat)
-        seg = F.interpolate(seg, size=(224,224))
-
+        # self.segmenter.load_state_dict(segmenter_ckpt["state_dict"])
+        # return cls_logits, bbox, seg_mask
         return {
-            "classification": cls,
-            "localization": box,
-            "segmentation": seg
+            "classification": cls_logits,
+            "localization": bbox,
+            "segmentation": seg_mask
         }
+        
+    # def forward(self,x):
+    #     feat = self.backbone(x)
+    #     flat = torch.flatten(feat,1)
+
+    #     cls = self.classifier(flat)
+    #     box = self.localizer(flat)
+    #     seg = self.segmenter(feat)
+    #     seg = F.interpolate(seg, size=(224,224))
+
+    #     return {
+    #         "classification": cls,
+    #         "localization": box,
+    #         "segmentation": seg
+    #     }
