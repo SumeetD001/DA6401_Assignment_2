@@ -93,7 +93,7 @@ class MultiTaskPerceptionModel(nn.Module):
             nn.Dropout(p=0.3),
 
             nn.Linear(256, 4),
-            # nn.ReLU(inplace=True),
+            nn.ReLU(inplace=True),
         )
 
         # ── Segmentation decoder ────────────────────────────────────────
@@ -201,20 +201,20 @@ class MultiTaskPerceptionModel(nn.Module):
 
         # ── Localization branch ──
         bbox = self.reg_head(flat)
-        x1, y1, x2, y2 = bbox[:, 0], bbox[:, 1], bbox[:, 2], bbox[:, 3]
+        # x1, y1, x2, y2 = bbox[:, 0], bbox[:, 1], bbox[:, 2], bbox[:, 3]
         
-        cx = (x1 + x2) / 2
-        cy = (y1 + y2) / 2
-        w  = (x2 - x1)
-        h  = (y2 - y1)
+        # cx = (x1 + x2) / 2
+        # cy = (y1 + y2) / 2
+        # w  = (x2 - x1)
+        # h  = (y2 - y1)
         
-        bbox = torch.stack([cx, cy, w, h], dim=1)
+        # bbox = torch.stack([cx, cy, w, h], dim=1)
 
-        # optional but recommended
-        bbox[:, 0] = bbox[:, 0].clamp(0, 224)
-        bbox[:, 1] = bbox[:, 1].clamp(0, 224)
-        bbox[:, 2] = bbox[:, 2].clamp(1, 224)
-        bbox[:, 3] = bbox[:, 3].clamp(1, 224)
+        # # optional but recommended
+        # bbox[:, 0] = bbox[:, 0].clamp(0, 224)
+        # bbox[:, 1] = bbox[:, 1].clamp(0, 224)
+        # bbox[:, 2] = bbox[:, 2].clamp(1, 224)
+        # bbox[:, 3] = bbox[:, 3].clamp(1, 224)
 
         # ── Segmentation branch ──
         b  = self.bottleneck(enc_out)
