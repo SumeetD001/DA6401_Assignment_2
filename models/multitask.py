@@ -210,8 +210,8 @@ class MultiTaskPerceptionModel(nn.Module):
         d2 = self.up2(d3, s2)
         d1 = self.up1(d2, s1)
         seg_mask = self.seg_final(d1)
-
-        return cls_logits, bbox, seg_mask        self.segmenter.load_state_dict(segmenter_ckpt["state_dict"])
+        self.segmenter.load_state_dict(segmenter_ckpt["state_dict"])
+        return cls_logits, bbox, seg_mask
 
     def forward(self,x):
         feat = self.backbone(x)
