@@ -21,7 +21,7 @@ Design choices
 
 import torch
 import torch.nn as nn
-from models.vgg11 import VGG11
+from models.vgg11 import VGG11Encoder
 
 
 class LocalizationModel(nn.Module):
