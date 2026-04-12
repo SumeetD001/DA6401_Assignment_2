@@ -373,9 +373,9 @@ class MultiTaskPerceptionModel(nn.Module):
         super().__init__()
 
         import gdown
-        gdown.download(id="<classifier.pth drive id>", output=classifier_path, quiet=False)
-        gdown.download(id="<localizer.pth drive id>",  output=localizer_path,  quiet=False)
-        gdown.download(id="<unet.pth drive id>",       output=unet_path,       quiet=False)
+        gdown.download(id="1E_7yKvLmdlHbxzDnEHhkIY9GU8Ioe4O3", output=classifier_path, quiet=False)
+        gdown.download(id="1ycbVUQq8NyghUXv0fZ5bJRmFQK0M1zbe",  output=localizer_path,  quiet=False)
+        gdown.download(id="1njUFv6SvSyQQU-uNd7GCRnm2wzoQ1TrK",       output=unet_path,       quiet=False)
 
         self.device = torch.device(device)
 
