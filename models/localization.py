@@ -150,14 +150,14 @@ Decoder : Lightweight regression head → [cx, cy, w, h] in pixel space
 
 import torch
 import torch.nn as nn
-from models.vgg11 import VGG11
+from models.vgg11 import VGG11Encoder
 
 
 class LocalizationModel(nn.Module):
     def __init__(self, backbone_weights=None, freeze_backbone=False):
         super().__init__()
 
-        _vgg = VGG11(num_classes=37)
+        _vgg = VGG11Encoder(num_classes=37)
         if backbone_weights is not None:
             state = torch.load(backbone_weights, map_location="cpu")
             state = {k.replace("model.", ""): v for k, v in state.items()}
