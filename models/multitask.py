@@ -363,9 +363,9 @@ from models.segmentation import _double_conv, _UpBlock
 class MultiTaskPerceptionModel(nn.Module):
     def __init__(
         self,
-        classifier_path="checkpoints/classifier.pth",
-        localizer_path="checkpoints/localizer.pth",
-        unet_path="checkpoints/unet.pth",
+        classifier_path="classifier.pth",
+        localizer_path="localizer.pth",
+        unet_path="unet.pth",
         num_classes=37,
         seg_classes=3,
         device="cpu",
