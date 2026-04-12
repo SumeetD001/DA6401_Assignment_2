@@ -168,7 +168,7 @@ class MultiTaskPerceptionModel(nn.Module):
 
         # return cls_logits, bbox, seg_mask
         return {
-            'classification': cls_out,
-            'localization': loc_out,
-            'segmentation': seg_out
+            'classification': cls_logits,
+            'localization': bbox,
+            'segmentation': seg_mask
         }
