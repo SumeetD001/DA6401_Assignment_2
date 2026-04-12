@@ -29,7 +29,7 @@ class MultiTaskPerceptionModel(nn.Module):
         import gdown
         gdown.download(id="1E_7yKvLmdlHbxzDnEHhkIY9GU8Ioe4O3", output=classifier_path, quiet=False)
         gdown.download(id="1FyyQPd19RUCg6jqCNPVTaeQEvJgJhDK6",  output=localizer_path,  quiet=False)
-        gdown.download(id="<unet.pth drive id>",       output=unet_path,       quiet=False)
+        gdown.download(id="1FyyQPd19RUCg6jqCNPVTaeQEvJgJhDK6",       output=unet_path,       quiet=False)
 
         self.device = torch.device(device)
 
