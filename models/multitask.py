@@ -166,4 +166,9 @@ class MultiTaskPerceptionModel(nn.Module):
         d1       = self.up1(d2, s1)
         seg_mask = self.final_conv(d1)
 
-        return cls_logits, bbox, seg_mask
+        # return cls_logits, bbox, seg_mask
+        return {
+            'classification': cls_out,
+            'localization': loc_out,
+            'segmentation': seg_out
+        }
