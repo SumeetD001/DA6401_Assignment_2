@@ -7,7 +7,7 @@ Decoder : Symmetric expansive path with TransposedConv upsampling
 
 import torch
 import torch.nn as nn
-from models.vgg11 import VGG11
+from models.vgg11 import VGG11Encoder
 
 
 def _double_conv(in_ch, out_ch):
@@ -41,7 +41,7 @@ class SegmentationModel(nn.Module):
         self.num_classes = num_classes
 
         # ---- Build encoder from VGG11 --------------------------------
-        _vgg = VGG11(num_classes=37)
+        _vgg = VGG11Encoder(num_classes=37)
         if backbone_weights is not None:
             state = torch.load(backbone_weights, map_location="cpu")
             # Strip ClassificationModel wrapper prefix if present
