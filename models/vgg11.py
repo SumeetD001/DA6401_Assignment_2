@@ -26,25 +26,20 @@ class VGG11Encoder(nn.Module):
         super().__init__()
 
         self.features = nn.Sequential(
-            # Block 1 — 224×224 → 112×112
             _conv_bn_relu(3, 64),
             nn.MaxPool2d(kernel_size=2, stride=2),
 
-            # Block 2 — 112×112 → 56×56
             _conv_bn_relu(64, 128),
             nn.MaxPool2d(kernel_size=2, stride=2),
 
-            # Block 3 — 56×56 → 28×28
             _conv_bn_relu(128, 256),
             _conv_bn_relu(256, 256),
             nn.MaxPool2d(kernel_size=2, stride=2),
 
-            # Block 4 — 28×28 → 14×14
             _conv_bn_relu(256, 512),
             _conv_bn_relu(512, 512),
             nn.MaxPool2d(kernel_size=2, stride=2),
 
-            # Block 5 — 14×14 → 7×7
             _conv_bn_relu(512, 512),
             _conv_bn_relu(512, 512),
             nn.MaxPool2d(kernel_size=2, stride=2),
