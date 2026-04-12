@@ -1,20 +1,3 @@
-"""
-train.py — Train classification, localization, and segmentation models.
-
-Usage examples
---------------
-# Task 1 – Classification
-python train.py --task classification --data_root ./data/pets --epochs 30 --lr 1e-3
-
-# Task 2 – Localization
-python train.py --task localization --data_root ./data/pets --epochs 30 \
-                --backbone_ckpt checkpoints/classifier.pth
-
-# Task 3 – Segmentation
-python train.py --task segmentation --data_root ./data/pets --epochs 30 \
-                --backbone_ckpt checkpoints/classifier.pth
-"""
-
 import os
 import argparse
 import torch
@@ -27,10 +10,6 @@ from models.localization import LocalizationModel
 from models.segmentation import SegmentationModel
 from losses.iou_loss import IoULoss
 
-
-# ---------------------------------------------------------------------------
-# Dice loss helper (used in segmentation)
-# ---------------------------------------------------------------------------
 
 class DiceLoss(nn.Module):
     def __init__(self, num_classes: int = 3, eps: float = 1e-6):
@@ -49,10 +28,6 @@ class DiceLoss(nn.Module):
         return 1.0 - dice.mean()
 
 
-# ---------------------------------------------------------------------------
-# Training loops
-# ---------------------------------------------------------------------------
-
 def train_classification(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -69,7 +44,6 @@ def train_classification(args):
     best_acc = 0.0
 
     for epoch in range(1, args.epochs + 1):
-        # -- Train --
         model.train()
         total_loss, correct, total = 0.0, 0, 0
         for imgs, labels in train_dl:
@@ -86,8 +60,6 @@ def train_classification(args):
 
         train_loss = total_loss / total
         train_acc  = correct / total
-
-        # -- Validate --
         model.eval()
         val_loss, val_correct, val_total = 0.0, 0, 0
         with torch.no_grad():
@@ -143,7 +115,6 @@ def train_localization(args):
     best_val_loss = float("inf")
 
     for epoch in range(1, args.epochs + 1):
-        # -- Train --
         model.train()
         total_loss, total_mse, total_iou_l, n = 0.0, 0.0, 0.0, 0
         for imgs, bboxes in train_dl:
@@ -165,8 +136,6 @@ def train_localization(args):
         tr_loss = total_loss  / n
         tr_mse  = total_mse   / n
         tr_iou  = total_iou_l / n
-
-        # -- Validate --
         model.eval()
         vl_loss, vl_mse, vl_iou, vn = 0.0, 0.0, 0.0, 0
         with torch.no_grad():
@@ -238,7 +207,6 @@ def train_segmentation(args):
         return (logits.argmax(dim=1) == targets).float().mean().item()
 
     for epoch in range(1, args.epochs + 1):
-        # -- Train --
         model.train()
         tl, n = 0.0, 0
         for imgs, masks in train_dl:
@@ -252,8 +220,6 @@ def train_segmentation(args):
             tl += loss.item() * imgs.size(0)
             n  += imgs.size(0)
         tr_loss = tl / n
-
-        # -- Validate --
         model.eval()
         vl, vacc, vn = 0.0, 0.0, 0
         with torch.no_grad():
@@ -276,10 +242,6 @@ def train_segmentation(args):
             torch.save(model.state_dict(), "checkpoints/unet.pth")
             print(f"  ↳ saved unet.pth")
 
-
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
 
 def parse_args():
     p = argparse.ArgumentParser()
