@@ -1,10 +1,3 @@
-"""
-Oxford-IIIT Pet Dataset loader.
-
-Provides normalised images (ImageNet stats), bounding boxes in
-[cx, cy, w, h] pixel space, and segmentation trimaps.
-"""
-
 import os
 from pathlib import Path
 from PIL import Image
@@ -15,11 +8,10 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 
 
-# ImageNet normalisation (used at inference too — autograder sends norm'd imgs)
 _MEAN = [0.485, 0.456, 0.406]
 _STD  = [0.229, 0.224, 0.225]
 
-IMG_SIZE = 224   # Fixed per VGG11 paper
+IMG_SIZE = 224  
 
 
 def get_transforms(train: bool = True):
@@ -50,28 +42,6 @@ def get_seg_transform(train: bool = True):
 
 
 class PetsDataset(Dataset):
-    """
-    Oxford-IIIT Pet Dataset.
-
-    Expected directory structure:
-        root/
-          images/          *.jpg
-          annotations/
-            xmls/          *.xml   (bounding boxes)
-            trimaps/       *.png   (segmentation masks; values 1/2/3)
-          annotations/list.txt
-
-    Parameters
-    ----------
-    root       : str   Path to dataset root.
-    split      : str   "train" or "val".
-    task       : str   "classification" | "localization" | "segmentation" | "all"
-    train      : bool  Apply training augmentations.
-    val_frac   : float Fraction of data held out for validation.
-    seed       : int   Random seed for train/val split.
-    """
-
-    # Map breed name → class index (sorted alphabetically)
     _BREED_MAP: dict = {}
 
     def __init__(
@@ -90,7 +60,6 @@ class PetsDataset(Dataset):
         self.img_tf = get_transforms(train)
         self.seg_tf = get_seg_transform(train)
 
-        # Build sample list from list.txt
         list_file = self.root / "annotations" / "list.txt"
         samples: list[dict] = []
         with open(list_file) as f:
@@ -99,10 +68,9 @@ class PetsDataset(Dataset):
                 if not line or line.startswith("#"):
                     continue
                 parts = line.split()
-                name, cls_id = parts[0], int(parts[1]) - 1  # 0-indexed
+                name, cls_id = parts[0], int(parts[1]) - 1 
                 samples.append({"name": name, "cls_id": cls_id})
 
-        # Deterministic train/val split
         import random
         rng = random.Random(seed)
         rng.shuffle(samples)
@@ -123,7 +91,6 @@ class PetsDataset(Dataset):
         """Parse Pascal VOC XML → [cx, cy, w, h] in 224-px space."""
         xml_path = self.root / "annotations" / "xmls" / f"{name}.xml"
         if not xml_path.exists():
-            # Fallback: entire image
             return torch.tensor([112.0, 112.0, 224.0, 224.0])
 
         tree = ET.parse(xml_path)
@@ -135,7 +102,6 @@ class PetsDataset(Dataset):
         xmax = float(bndbox.find("xmax").text)
         ymax = float(bndbox.find("ymax").text)
 
-        # Scale to 224×224
         sx = IMG_SIZE / orig_w
         sy = IMG_SIZE / orig_h
 
@@ -159,7 +125,7 @@ class PetsDataset(Dataset):
         mask = mask.resize((IMG_SIZE, IMG_SIZE), Image.NEAREST)
         mask_t = torch.from_numpy(
             __import__("numpy").array(mask, dtype="int64")
-        ) - 1  # shift 1/2/3 → 0/1/2
+        ) - 1  
         mask_t = mask_t.clamp(0, 2)
         return mask_t
 
@@ -184,8 +150,6 @@ class PetsDataset(Dataset):
         mask = self._load_mask(name)
         if self.task == "segmentation":
             return img_t, mask
-
-        # "all" — returns all targets
         return img_t, {
             "cls":  torch.tensor(cls, dtype=torch.long),
             "bbox": bbox,
