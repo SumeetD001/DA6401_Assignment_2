@@ -31,7 +31,11 @@ def predict(image_path):
     box = box.squeeze().cpu().numpy()
     seg = torch.sigmoid(seg).squeeze().cpu().numpy()
 
-    return cls, box, seg
+    return {
+        'classification': cls_logits,
+        'localization': bbox,
+        'segmentation': seg_mask
+    }
 
 
 if __name__ == "__main__":
