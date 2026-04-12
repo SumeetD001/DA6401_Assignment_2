@@ -1,10 +1,3 @@
-"""
-U-Net Style Semantic Segmentation
-==================================
-Encoder : VGG11 convolutional backbone (skip connections retained)
-Decoder : Symmetric expansive path with TransposedConv upsampling
-"""
-
 import torch
 import torch.nn as nn
 from models.vgg11 import VGG11Encoder
@@ -40,11 +33,9 @@ class SegmentationModel(nn.Module):
         super().__init__()
         self.num_classes = num_classes
 
-        # ---- Build encoder from VGG11 --------------------------------
         _vgg = VGG11Encoder(num_classes=37)
         if backbone_weights is not None:
             state = torch.load(backbone_weights, map_location="cpu")
-            # Strip ClassificationModel wrapper prefix if present
             state = {k.replace("model.", ""): v for k, v in state.items()}
             missing, unexpected = _vgg.load_state_dict(state, strict=False)
             feat_loaded = [k for k in state if k.startswith("features.") and k not in missing]
