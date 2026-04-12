@@ -1,32 +1,8 @@
-"""
-Custom Intersection-over-Union (IoU) loss.
-
-Boxes are expected in [x_center, y_center, width, height] format (pixel space).
-The loss is defined as  L = 1 - IoU  so it lies in [0, 1].
-
-Reduction modes:
-  "mean"  (default) – mean over the batch
-  "sum"             – sum  over the batch
-  "none"            – per-sample tensor
-"""
-
 import torch
 import torch.nn as nn
 
 
 class IoULoss(nn.Module):
-    """
-    IoU loss for axis-aligned bounding boxes.
-
-    Parameters
-    ----------
-    reduction : str
-        One of {"mean", "sum", "none"}.  Default is "mean".
-    eps : float
-        Small constant added to numerator and denominator to avoid
-        division by zero and keep gradients well-behaved.
-    """
-
     def __init__(self, reduction: str = "mean", eps: float = 1e-6):
         super().__init__()
         if reduction not in ("mean", "sum", "none"):
@@ -67,7 +43,6 @@ class IoULoss(nn.Module):
         pred_xyxy = self._cxcywh_to_xyxy(pred)
         tgt_xyxy = self._cxcywh_to_xyxy(target)
 
-        # Intersection
         inter_x1 = torch.max(pred_xyxy[:, 0], tgt_xyxy[:, 0])
         inter_y1 = torch.max(pred_xyxy[:, 1], tgt_xyxy[:, 1])
         inter_x2 = torch.min(pred_xyxy[:, 2], tgt_xyxy[:, 2])
@@ -77,7 +52,6 @@ class IoULoss(nn.Module):
         inter_h = (inter_y2 - inter_y1).clamp(min=0)
         inter_area = inter_w * inter_h
 
-        # Areas
         pred_area = (pred_xyxy[:, 2] - pred_xyxy[:, 0]).clamp(min=0) * \
                     (pred_xyxy[:, 3] - pred_xyxy[:, 1]).clamp(min=0)
         tgt_area  = (tgt_xyxy[:, 2] - tgt_xyxy[:, 0]).clamp(min=0) * \
@@ -86,16 +60,16 @@ class IoULoss(nn.Module):
         union_area = pred_area + tgt_area - inter_area
 
         iou = (inter_area + self.eps) / (union_area + self.eps)
-        # Clamp to [0, 1] for numerical safety
+
         iou = iou.clamp(0.0, 1.0)
 
-        loss = 1.0 - iou  # in [0, 1]
+        loss = 1.0 - iou
 
         if self.reduction == "mean":
             return loss.mean()
         elif self.reduction == "sum":
             return loss.sum()
-        else:  # "none"
+        else:
             return loss
 
     def extra_repr(self) -> str:
