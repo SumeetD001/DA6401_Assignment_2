@@ -9,7 +9,6 @@ from models.vgg11 import VGG11Encoder
 
 
 class ClassificationModel(nn.Module):
-    """37-class pet-breed classifier built on VGG11."""
 
     def __init__(self, num_classes: int = 37, dropout_p: float = 0.5):
         super().__init__()
