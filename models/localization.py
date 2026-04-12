@@ -3,20 +3,6 @@ Object Localization Model
 =========================
 Encoder : VGG11 convolutional backbone (features + avgpool)
 Decoder : Lightweight regression head → [cx, cy, w, h] in pixel space
-
-Design choices
---------------
-* The backbone weights are *fine-tuned* (not frozen) because:
-  - The Oxford-IIIT Pet dataset is small; starting from good classification
-    features and allowing small adjustments gives better localisation than
-    training a fresh decoder on a frozen (classification-optimised) backbone.
-  - We use a low learning-rate for the backbone during training to prevent
-    catastrophic forgetting (see train.py).
-
-* Output activation: ReLU on the last layer so all coordinates are ≥ 0
-  (bounding box dimensions and centre coords are always non-negative in pixel
-  space).  Alternatively one could use Sigmoid * img_size, but plain ReLU
-  avoids saturating gradients for large values.
 """
 
 import torch
@@ -25,16 +11,61 @@ from models.vgg11 import VGG11Encoder
 
 
 class LocalizationModel(nn.Module):
-    """
-    Encoder-decoder for single-object bounding-box regression.
+    def __init__(self, backbone_weights=None, freeze_backbone=False):
+        super().__init__()
 
-    Parameters
-    ----------
-    backbone_weights : str or None
-        Path to a saved VGG11 state-dict.  When provided the backbone is
-        initialised with those weights; otherwise random init.
-    freeze_backbone : bool
-        If True, gradient flow through the backbone is disabled.
+        _vgg = VGG11Encoder(num_classes=37)
+        if backbone_weights is not None:
+            state = torch.load(backbone_weights, map_location="cpu")
+            # Strip ClassificationModel wrapper prefix if present
+            state = {k.replace("model.", ""): v for k, v in state.items()}
+            missing, unexpected = _vgg.load_state_dict(state, strict=False)
+            feat_loaded = [k for k in state if k.startswith("features.") and k not in missing]
+            print(f"[LocalizationModel] Loaded {len(feat_loaded)} backbone keys from {backbone_weights}")
+            if len(feat_loaded) == 0:
+                raise RuntimeError(
+                    f"No backbone keys loaded from {backbone_weights}! "
+                    "Check checkpoint was saved from ClassificationModel or VGG11."
+                )
+
+        self.backbone = _vgg.features
+        self.avgpool  = _vgg.avgpool
+
+        if freeze_backbone:
+            for p in self.backbone.parameters():
+                p.requires_grad = False
+
+        self.reg_head = nn.Sequential(
+            nn.Linear(512 * 7 * 7, 1024),
+            nn.BatchNorm1d(1024),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.3),
+
+            nn.Linear(1024, 256),
+            nn.BatchNorm1d(256),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.3),
+
+            nn.Linear(256, 4),
+            nn.ReLU(inplace=True),
+        )
+
+        self._init_head()
+
+    def _init_head(self):
+        for m in self.reg_head.modules():
+            if isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, nonlinearity="relu")
+                nn.init.zeros_(m.bias)
+            elif isinstance(m, nn.BatchNorm1d):
+                nn.init.ones_(m.weight)
+                nn.init.zeros_(m.bias)
+
+    def forward(self, x):
+        x = self.backbone(x)
+        x = self.avgpool(x)
+        x = torch.flatten(x, 1)
+        return self.reg_head(x)        If True, gradient flow through the backbone is disabled.
     """
 
     def __init__(
